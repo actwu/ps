@@ -11,7 +11,7 @@
 <layout>
 <box></box>
 <box hei="20" space="5" bbg2 bol3 >
-<say id="ps">××××××××××××</say>
+<say id="ps" id="copy(pick('#ps').get);">××××××××××××</say>
 </box>
 <box hei="20" lbg space="5">
   <tap do="pick('#ps').set=genps(len)">
@@ -46,7 +46,11 @@
 <script>
 load("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css")
 load('https://iselang.github.io/ux.js');load('num/ui.css')
-app('Name of my NUM')
+app('Name of my NUM');
+  const copy=(_kh3)=>{window.focus();navigator.clipboard.writeText(_kh3)}
+
+  copy?(window.copy=copy):'';
+
 let len=12
 const genps=l=>{const c="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+[]{}<>?",a=new Uint32Array(l);crypto.getRandomValues(a);return Array.from(a,x=>c[x%c.length]).join("")}
 </script>
