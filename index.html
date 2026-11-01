@@ -1,56 +1,358 @@
 <!DOCTYPE html>
-<meta ref="convert:num">
+<html lang="en">
 <head>
-<link rel='preload' as="script" href='https://cdn.jsdelivr.net/gh/iselang/iselang.github.io@main/num.min.js'>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Minimalist Secure Password Generator</title>
+  
+  <!-- SEO & Social Meta Tags -->
+  <meta name="description" content="Ultra-clean, instant, and secure dark mode password generator. Zero borders, maximum security.">
+  <meta name="keywords" content="password generator, dark mode, zero border, secure password, auto copy">
+  <meta name="author" content="NUM">
+  <meta name="theme-color" content="#000000">
+  <meta property="og:title" content="Minimalist Secure Password Generator">
+  <meta property="og:description" content="Ultra-clean, instant, and secure dark mode password generator. Zero borders, maximum security.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Minimalist Secure Password Generator">
+  <meta name="twitter:description" content="Ultra-clean, instant, and secure dark mode password generator. Zero borders, maximum security.">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      border: none !important;
+      outline: none !important;
+      touch-action: manipulation;
+    }
+
+    body {
+      background-color: #000000;
+      color: #e5e5e5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      height: 100dvh;
+      width: 100dvw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 1.25rem;
+    }
+
+    .app-wrapper {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    /* Main Password Display Unit */
+    .password-field {
+      width: 100%;
+      min-height: 64px;
+      background: #111111;
+      border-radius: 20px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    .password-field:active {
+      transform: scale(0.98);
+      background: #161616;
+    }
+
+    .password-text {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: clamp(1.1rem, 4vw, 1.35rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #ffffff;
+      word-break: break-all;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .action-icon {
+      color: #555555;
+      font-size: 1.3rem;
+      transition: color 0.15s ease, transform 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .password-field:hover .action-icon {
+      color: #888888;
+    }
+
+    /* Duolingo-style Chunky Bottom Bar Actions */
+    .controls-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      background: #1c1c1e;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 1.1rem;
+      min-height: 56px;
+      padding: 0.85rem 0;
+      border-radius: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 5px 0 #0a0a0a;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+    }
+
+    .btn:active {
+      transform: translateY(5px);
+      box-shadow: 0 0 0 #0a0a0a;
+      background: #242426;
+    }
+
+    .btn-counter {
+      background: #141416;
+      color: #888888;
+      cursor: default;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .btn-counter:active {
+      transform: none;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+      background: #141416;
+    }
+
+    .btn-gen {
+      background: #26262a;
+      color: #ffffff;
+      box-shadow: 0 5px 0 #111113;
+      grid-column: span 3;
+      margin-top: 0.25rem;
+      font-size: 1rem;
+      min-height: 56px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .btn-gen:active {
+      background: #303035;
+      box-shadow: 0 0 0 #111113;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      background: #222225;
+      color: #ffffff;
+      padding: 0.85rem 1.75rem;
+      border-radius: 99px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.9);
+      z-index: 100;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
 </head>
 <body>
 
-<layout pad="5">
-<span> 
-  <box></box>
-<layout>
-<box></box>
-<box hei="20" space="5" bbg2 bol3 >
-<say id="ps" id="copy(pick('#ps').get);">××××××××××××</say>
-</box>
-<box hei="20" lbg space="5">
-  <tap do="pick('#ps').set=genps(len)">
-<say> Gen</say>
-</tap>
-</box>
-    
-<span hei="70" gap="3">
-<box gbg space="5">
-<tap do="len++; pick('#ot').innerText=len">
-<i class="fa-solid fa-plus"></i>
-</tap>
-</box>
-  <box bbg2 bol3 space="5">
-    <say id="ot">12</say>
-  </box>
-<box lbg space="5">
-<tap do="len=Math.max(1,len-1); pick('#ot').innerText=len">
-<i class="fa-solid fa-minus pad="5"></i>
-</tap>
-</box>
+  <div class="app-wrapper">
+    <!-- Main Display & Direct Tap-to-Copy -->
+    <div class="password-field" id="copyBtn" role="button" aria-label="Copy password">
+      <span class="password-text" id="ps">••••••••••••</span>
+      <i class="fa-solid fa-copy action-icon" id="copyIcon"></i>
+    </div>
 
-</span>
-  <box></box>
-</layout>
-  <box></box>
-</span>
-  
-</layout>
+    <!-- Interactive Stepper & Regenerate Controls -->
+    <div class="controls-grid">
+      <button class="btn" id="minusBtn" aria-label="Decrease length">
+        <i class="fa-solid fa-minus"></i>
+      </button>
+
+      <div class="btn btn-counter" aria-live="polite">
+        <span id="ot">12</span>
+      </div>
+
+      <button class="btn" id="plusBtn" aria-label="Increase length">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+
+      <button class="btn btn-gen" id="genBtn">
+        <i class="fa-solid fa-rotate-right"></i> Generate
+      </button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Copied to clipboard</div>
+
+  <script>
+    let len = 12;
+    let initialCopied = false;
+
+    const psEl = document.getElementById('ps');
+    const otEl = document.getElementById('ot');
+    const toastEl = document.getElementById('toast');
+    const copyIcon = document.getElementById('copyIcon');
+
+    // Secure Auto Password Generator using CSPRNG
+    const genps = (l) => {
+      const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+[]{}<>?";
+      const array = new Uint32Array(l);
+      crypto.getRandomValues(array);
+      return Array.from(array, x => chars[x % chars.length]).join("");
+    };
+
+    // Robust Mobile & Desktop Clipboard Writer
+    const copyToClipboard = (text) => {
+      if (!text || text.includes('•')) return Promise.reject();
+
+      // Modern Clipboard API
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text)
+          .then(() => {
+            showToast();
+            initialCopied = true;
+          })
+          .catch(() => fallbackCopy(text));
+      } else {
+        return fallbackCopy(text);
+      }
+    };
+
+    // iOS/Android compatible input fallback for Clipboard API restrictions
+    const fallbackCopy = (text) => {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'absolute';
+      textarea.style.left = '-9999px';
+      textarea.style.fontSize = '16px'; // Prevent zoom on iOS
+      document.body.appendChild(textarea);
+
+      // Select for iOS Safari
+      if (navigator.userAgent.match(/ipad|iphone/i)) {
+        const range = document.createRange();
+        range.selectNodeContents(textarea);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        textarea.setSelectionRange(0, 999999);
+      } else {
+        textarea.select();
+      }
+
+      let success = false;
+      try {
+        success = document.execCommand('copy');
+        if (success) {
+          showToast();
+          initialCopied = true;
+        }
+      } catch (err) {}
+
+      document.body.removeChild(textarea);
+      return success ? Promise.resolve() : Promise.reject();
+    };
+
+    let toastTimeout;
+    const showToast = () => {
+      copyIcon.className = "fa-solid fa-check action-icon";
+      copyIcon.style.color = "#ffffff";
+      toastEl.classList.add('show');
+      
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toastEl.classList.remove('show');
+        copyIcon.className = "fa-solid fa-copy action-icon";
+        copyIcon.style.color = "#555555";
+      }, 1500);
+    };
+
+    const updatePassword = (autoCopy = false) => {
+      const newPs = genps(len);
+      psEl.innerText = newPs;
+      if (autoCopy) {
+        copyToClipboard(newPs).catch(() => {
+          // Modern browsers block auto-copy on initial load without user gestures.
+          // Event listeners below handle auto-copy on first touch/tap anywhere.
+        });
+      }
+    };
+
+    // Bypass touch gesture restriction on modern mobile browsers
+    const handleFirstTouch = () => {
+      if (!initialCopied && psEl.innerText && !psEl.innerText.includes('•')) {
+        copyToClipboard(psEl.innerText);
+      }
+      window.removeEventListener('pointerdown', handleFirstTouch);
+      window.removeEventListener('touchstart', handleFirstTouch);
+      window.removeEventListener('keydown', handleFirstTouch);
+    };
+
+    window.addEventListener('pointerdown', handleFirstTouch, { once: true });
+    window.addEventListener('touchstart', handleFirstTouch, { once: true });
+    window.addEventListener('keydown', handleFirstTouch, { once: true });
+
+    // Touch and Click Handlers
+    document.getElementById('plusBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      len++;
+      otEl.innerText = len;
+      updatePassword(false);
+    });
+
+    document.getElementById('minusBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      len = Math.max(1, len - 1);
+      otEl.innerText = len;
+      updatePassword(false);
+    });
+
+    document.getElementById('genBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      updatePassword(true);
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      copyToClipboard(psEl.innerText);
+    });
+
+    // Auto-generate on immediate load
+    window.addEventListener('DOMContentLoaded', () => {
+      updatePassword(true);
+    });
+  </script>
 </body>
-<script src="https://cdn.jsdelivr.net/gh/iselang/iselang.github.io@main/num.min.js"></script>
-<script>
-load("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css")
-load('https://iselang.github.io/ux.js');load('num/ui.css')
-app('Name of my NUM');
-  const copy=(_kh3)=>{window.focus();navigator.clipboard.writeText(_kh3)}
-
-  copy?(window.copy=copy):'';
-
-let len=12
-const genps=l=>{const c="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+[]{}<>?",a=new Uint32Array(l);crypto.getRandomValues(a);return Array.from(a,x=>c[x%c.length]).join("")}
-</script>
+</html>
